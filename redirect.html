@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zunalita Redirect</title>
+<p>
+  You’ve reached this page through a Zunalita link.<br>
+  This redirect service is used to safely forward you to an external website.<br>
+  If you’re not automatically redirected, please check the link source or try again.
+</p>
+
+<noscript><p style="color:red">JavaScript is required for redirection, please enable it and reload this page.</p></noscript>
+
+<script>
+  const map = {
+  "https://":"h~","http://":"p~","www.":"w~",
+  ".com":".c",".org":".o",".net":".n"
+  };
+
+  function norm(u){
+    u=u.trim()
+      .replace(/^https?:\/\//,"")
+      .replace(/^www\./,"")
+      .replace(/\/+$/,"");
+    return u.toLowerCase();
+  }
+
+  
+  function enc(u){
+    u=norm(u);
+    for(const[k,v]of Object.entries(map))u=u.replaceAll(k,v);
+    return btoa(u).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  }
+  
+
+  function dec(s){
+    let u=atob(s.replace(/-/g,"+").replace(/_/g,"/"));
+    for(const[k,v]of Object.entries(map))u=u.replaceAll(v,k);
+    if(!/^https?:\/\//.test(u))u="https://"+u;
+    return u;
+  }
+
+  
+  function gen(u){
+    const short=`${location.origin}${location.pathname}?c=${enc(u)}`;
+    console.log("Short:",short);
+    return short;
+  }
+  
+
+  (()=>{
+    const c=new URLSearchParams(location.search).get("c");
+    if(!c)return;
+    const u=dec(c);
+    console.log("→",u);
+    location.replace(u);
+  })();
+</script>
+</html>
